@@ -1,1 +1,104 @@
-<h1><marquee direction="right" scrollamount="60">AAAAFTERBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUURRRNNNNNNNNNNNNNNNN</marquee></h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Red Square with Momentum</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <style>
+        #app {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .square {
+            width: 500px;
+            height: 500px;
+            background-image: url('https://placecats.com/bella/500/500');
+            cursor: pointer;
+        }
+
+        .not-clickable {
+            pointer-events: none;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <h1><marquee direction="right" scrollamount="60">AAAAFTERBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUURRRNNNNNNNNNNNNNNNN</marquee></h1>
+    <div id="app">
+        <div 
+            :class="{
+                'square': true,
+                'not-clickable': !isClickable
+            }" 
+            :style="{
+                transform: `rotateY(${rotation}deg)`
+            }"
+            @click="handleClick">
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    isClickable: true,
+                    rotation: 0,
+                    progress: 0,
+                    targetRotations: 2, // Number of complete rotations
+                    animationId: null,
+                    audioFiles: ['sound1.mp3', 'sound2.mp3', 'sound3.mp3']
+                };
+            },
+            methods: {
+                handleClick() {
+                    if (!this.isClickable) return;
+                    
+                    this.isClickable = false;
+                    this.progress = 0;
+                    
+                    // Select a random audio file
+                    const randomIndex = Math.floor(Math.random() * this.audioFiles.length);
+                    const selectedMp3 = this.audioFiles[randomIndex];
+                    console.log('Playing:', selectedMp3);
+                    
+                    // Start the animation
+                    this.animate();
+                },
+                
+                animate() {
+                    // Increment progress (0 to 1)
+                    this.progress += 0.005; // Adjust speed here
+                    
+                    // Ease out cubic function
+                    const easeOut = (t) => {
+                        return 1 - Math.pow(1 - t, 3);
+                    };
+                    
+                    // Calculate current rotation based on progress
+                    const targetDegrees = this.targetRotations * 360;
+                    this.rotation = easeOut(this.progress) * targetDegrees;
+                    
+                    if (this.progress < 1) {
+                        this.animationId = requestAnimationFrame(this.animate);
+                    } else {
+                        // Animation complete
+                        this.rotation = targetDegrees;
+                        this.isClickable = true;
+                    }
+                }
+            },
+            beforeDestroy() {
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
